@@ -5,6 +5,7 @@ import com.jjcoffee.coffee_shop_api.dto.OrderResponse;
 import com.jjcoffee.coffee_shop_api.entity.Coffee;
 import com.jjcoffee.coffee_shop_api.entity.Order;
 import com.jjcoffee.coffee_shop_api.exception.ResourceNotFoundException;
+import com.jjcoffee.coffee_shop_api.mongo.OrderLogService;
 import com.jjcoffee.coffee_shop_api.repository.CoffeeRepository;
 import com.jjcoffee.coffee_shop_api.repository.OrderRepository;
 import com.jjcoffee.coffee_shop_api.service.OrderService;
@@ -23,15 +24,18 @@ public class OrderServiceImpl implements OrderService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
+    private final OrderLogService orderLogService;
     private final OrderRepository orderRepository;
     private final CoffeeRepository coffeeRepository;
     private final PricingService pricingService;
 
     // Constructor injection for repositories
-    public OrderServiceImpl(OrderRepository orderRepository, CoffeeRepository coffeeRepository, PricingService pricingService) {
+    public OrderServiceImpl(OrderRepository orderRepository, CoffeeRepository coffeeRepository,
+                                        PricingService pricingService, OrderLogService orderLogService) {
         this.orderRepository = orderRepository;
         this.coffeeRepository = coffeeRepository;
         this.pricingService = pricingService;
+        this.orderLogService = orderLogService;
     }
 
     // Helper method to get price with fallback
@@ -56,9 +60,29 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
+        // Validate the order request for quantity
+        if (orderRequest.getQuantity() <= 0) {
 
+            orderLogService.logOrderEvent(
+                null, 
+                "ORDER_VALIDATION_FAILED", 
+                "Quantity must be at least 1"
+            );
+
+            throw new IllegalArgumentException("Quantity must be at least 1");
+        }
+
+        // Fetch the coffee from the database using the provided coffeeId and handle the case where the coffee is not found
         Coffee coffee = coffeeRepository.findById(orderRequest.getCoffeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Coffee not found"));
+                .orElseThrow(() -> {
+
+                    orderLogService.logOrderEvent(
+                        null, 
+                        "ORDER_VALIDATION_FAILED", 
+                        "Coffee not found for coffeeId " + orderRequest.getCoffeeId()
+                    );
+                    return new ResourceNotFoundException("Coffee not found");
+                });
 
         BigDecimal basePrice = getBasePrice(coffee);
 
@@ -75,6 +99,13 @@ public class OrderServiceImpl implements OrderService {
 
         // Save the order to the database
         Order savedOrder = orderRepository.save(order);
+
+        // Log the order creation event in MongoDB
+        orderLogService.logOrderEvent(
+            savedOrder.getId(), 
+            "ORDER_CREATED", 
+            "Order successfully created"
+        );
 
         // Create and return an OrderResponse DTO
         return mapToResponse(savedOrder);
