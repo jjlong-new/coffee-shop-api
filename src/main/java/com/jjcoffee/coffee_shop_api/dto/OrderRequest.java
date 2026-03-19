@@ -1,6 +1,6 @@
 package com.jjcoffee.coffee_shop_api.dto;
 
-import jakarta.validation.constraints.Min;
+//import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class OrderRequest {
     private Long coffeeId;
 
     @NotNull(message = "Quantity is required")
-    @Min(value = 1, message = "Quantity must be >= 1")
+    //@Min(value = 1, message = "Quantity must be >= 1")
     private int quantity;
 
 }

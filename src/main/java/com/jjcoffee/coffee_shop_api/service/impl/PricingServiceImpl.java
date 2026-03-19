@@ -10,6 +10,7 @@ import com.jjcoffee.coffee_shop_api.service.PricingService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -26,12 +27,25 @@ public class PricingServiceImpl implements PricingService {
     private final ObjectMapper objectMapper;
 
     // Constructor injection for WebClient and ObjectMapper
-    public PricingServiceImpl(WebClient.Builder builder, ObjectMapper objectMapper) {
-        this.webClient = builder
-                .baseUrl("http://localhost:3000") // Mockoon URL
-                .build();
-        this.objectMapper = objectMapper;
+    public PricingServiceImpl(
+            WebClient.Builder builder,
+            ObjectMapper objectMapper,
+            @Value("${pricing.base-url}") String baseUrl
+        ) {
+            System.out.println("Using base URL: " + baseUrl);
+            this.webClient = builder
+                    .baseUrl(baseUrl)
+                    .build();
+
+            this.objectMapper = objectMapper;
     }
+
+    // public PricingServiceImpl(WebClient.Builder builder, ObjectMapper objectMapper) {
+    //     this.webClient = builder
+    //             .baseUrl("http://localhost:3000") // Mockoon URL
+    //             .build();
+    //     this.objectMapper = objectMapper;
+    // }
 
     
     @Override
