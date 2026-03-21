@@ -43,7 +43,8 @@ public class OrderServiceImpl implements OrderService {
         return pricingService.getPriceForCoffee(coffee.getId())
                 .orElseGet(() -> {
                     log.warn("Pricing API failed. Falling back to DB price for coffeeId {}", coffee.getId());
-                    return coffee.getPrice();
+
+                    return coffee.getPrice(); // Fallback to price stored in the Coffee entity in the database
                 });
     }
 

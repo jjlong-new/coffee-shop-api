@@ -80,3 +80,40 @@ public class PricingServiceTest {
     }
 
 }
+
+
+/** MockServer Test Instructions
+Overview
+
+MockServer is used to simulate the external Pricing API during testing.
+It allows tests to run without depending on Mockoon or any real external service.
+
+How it works
+MockServer starts automatically on port 1080 during tests
+It intercepts calls to:
+GET /pricing/{coffeeId}
+
+Returns a mocked JSON response:
+{
+  "coffeeId": 1,
+  "basePrice": 2.75,
+  "currency": "USD"
+}
+
+Running the tests
+Run the following command:
+
+mvn test
+
+Or run directly from your IDE (Run Test).
+
+Configuration
+Test profile is used: application-test.properties
+
+Base URL is set to:
+http://localhost:1080
+
+Important Notes
+No need to start MockServer manually (handled in test lifecycle)
+Ensure port 1080 is not used by another application
+Mockoon or any external API should be stopped to avoid confusion **/

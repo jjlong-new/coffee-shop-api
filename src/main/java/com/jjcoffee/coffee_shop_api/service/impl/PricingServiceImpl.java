@@ -30,13 +30,12 @@ public class PricingServiceImpl implements PricingService {
     public PricingServiceImpl(
             WebClient.Builder builder,
             ObjectMapper objectMapper,
+            // Inject the base URL for the pricing API from application properties
             @Value("${pricing.base-url}") String baseUrl
         ) {
-            System.out.println("Using base URL: " + baseUrl);
             this.webClient = builder
                     .baseUrl(baseUrl)
                     .build();
-
             this.objectMapper = objectMapper;
     }
 
