@@ -26,7 +26,7 @@ public class PricingServiceImpl implements PricingService {
     // ObjectMapper for parsing JSON responses from the pricing API
     private final ObjectMapper objectMapper;
 
-    // Constructor injection for WebClient and ObjectMapper
+    // Constructor injection for WebClient and ObjectMapper, with base URL for the pricing API injected from application properties
     public PricingServiceImpl(
             WebClient.Builder builder,
             ObjectMapper objectMapper,

@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 public class CoffeeRequest {
 
     @NotBlank(message = "Coffee name is required")
-    @Size(min = 5, message = "Coffee name must be at least 40 characters long")
+    @Size(min = 5, message = "Coffee name must be at least 5 characters long")
     private String name;
 
     @NotNull(message = "Price is required")
