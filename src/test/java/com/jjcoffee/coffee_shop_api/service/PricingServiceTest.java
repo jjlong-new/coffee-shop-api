@@ -29,31 +29,41 @@ import java.util.Optional;
 
 
 @SpringBootTest
+// Use the "test" profile to load application-test.properties
 @ActiveProfiles("test")
+// Use per-class lifecycle to manage MockServer setup/teardown
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PricingServiceTest {
 
+    // MockServer instance to simulate the external pricing API
     private ClientAndServer mockServer;
+    // MockServerClient for configuring expectations and responses
     private MockServerClient mockClient;
 
+    // Autowire the PricingService to test its integration with the mocked API
     @Autowired
     private PricingService pricingService;
 
+    // Start MockServer before all tests and stop it afterward
     @BeforeAll
     void startMockServer() {
         mockServer = ClientAndServer.startClientAndServer(1080);
+        // Initialize MockServerClient to configure expectations
         mockClient = new MockServerClient("localhost", 1080);
     }
 
+    // Stop MockServer after all tests to free up resources and avoid port conflicts
     @AfterAll
     void stopMockServer() {
         mockClient.close();
         mockServer.stop();
     }
 
+    // Test to verify that PricingService correctly parses the base price from the mocked API response
     @Test
     void shouldParseBasePriceFromMockServer() {
 
+        // Configure MockServer to respond to GET /pricing/1 with a predefined JSON response
         mockClient
             .when(
                 request()
@@ -73,8 +83,10 @@ public class PricingServiceTest {
                     """)
             );
 
+        // Call the PricingService method to get the price for coffeeId 1
         Optional<BigDecimal> result = pricingService.getPriceForCoffee(1L);
 
+        // Assert that the result is present and the base price is correctly parsed as 2.75
         assertTrue(result.isPresent());
         assertEquals(new BigDecimal("2.75"), result.get());
     }
