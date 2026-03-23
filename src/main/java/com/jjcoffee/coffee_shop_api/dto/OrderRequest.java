@@ -21,6 +21,6 @@ public class OrderRequest {
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be >= 1")
-    private int quantity;
+    private Integer quantity;
 
 }
