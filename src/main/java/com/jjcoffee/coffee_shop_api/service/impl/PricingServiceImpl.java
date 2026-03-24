@@ -39,13 +39,6 @@ public class PricingServiceImpl implements PricingService {
             this.objectMapper = objectMapper;
     }
 
-    // public PricingServiceImpl(WebClient.Builder builder, ObjectMapper objectMapper) {
-    //     this.webClient = builder
-    //             .baseUrl("http://localhost:3000") // Mockoon URL
-    //             .build();
-    //     this.objectMapper = objectMapper;
-    // }
-
     
     @Override
     public Optional<BigDecimal> getPriceForCoffee(Long coffeeId) {

@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-//import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +28,6 @@ public class CoffeeRequest {
     @Positive(message = "Price must be a positive value greater than zero")
     private BigDecimal price;
 
-    //@Pattern(regexp = "SMALL|MEDIUM|LARGE", message = "Size must be SMALL, MEDIUM, or LARGE")
     @NotNull(message = "Size is required. Allowed values = SMALL, MEDIUM, LARGE")
     private SizeEnum size;
 
