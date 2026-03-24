@@ -20,6 +20,7 @@ import com.jjcoffee.coffee_shop_api.dto.OrderResponse;
 import com.jjcoffee.coffee_shop_api.entity.Coffee;
 import com.jjcoffee.coffee_shop_api.entity.Order;
 import com.jjcoffee.coffee_shop_api.entity.SizeEnum;
+import com.jjcoffee.coffee_shop_api.mongo.OrderLogService;
 import com.jjcoffee.coffee_shop_api.repository.CoffeeRepository;
 import com.jjcoffee.coffee_shop_api.repository.OrderRepository;
 import com.jjcoffee.coffee_shop_api.service.impl.OrderServiceImpl;
@@ -30,7 +31,13 @@ public class OrderServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private OrderLogService orderLogService;
+
+    @Mock
     private CoffeeRepository coffeeRepository;
+
+    @Mock
+    private PricingService pricingService;
 
     @InjectMocks
     private OrderServiceImpl orderServiceImpl;
@@ -40,7 +47,7 @@ public class OrderServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    //Test Create Order
+    //Test Create Order successfully
     @Test
     void testCreateOrder(){
 
@@ -55,6 +62,7 @@ public class OrderServiceTest {
         request.setQuantity(2);
 
         when(coffeeRepository.findById(1L)).thenReturn(Optional.of(coffee));
+        when(pricingService.getPriceForCoffee(1L)).thenReturn(Optional.of(new BigDecimal("3.50")));
 
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
