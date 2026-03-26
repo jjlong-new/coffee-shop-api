@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -30,6 +32,12 @@ public class OrderControllerTest {
 
     @MockitoBean
     private OrderService orderService;
+
+    @MockitoBean
+    private JobOperator jobOperator;
+
+    @MockitoBean
+    private Job job;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

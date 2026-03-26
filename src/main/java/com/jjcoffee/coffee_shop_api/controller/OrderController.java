@@ -7,11 +7,17 @@ import com.jjcoffee.coffee_shop_api.service.OrderService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.batch.core.job.*;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobOperator;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
@@ -19,8 +25,14 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    public OrderController(OrderService orderService) {
+    private final JobOperator jobOperator;
+
+    private final Job job;
+
+    public OrderController(OrderService orderService, JobOperator jobOperator, Job job) {
         this.orderService = orderService;
+        this.jobOperator = jobOperator;
+        this.job = job;
     }
 
     @GetMapping
@@ -49,5 +61,32 @@ public class OrderController {
         orderService.deleteOrder(id);
 
         return ResponseEntity.ok("Order deleted successfully");
+    }
+
+    @PostMapping("/batch/export-coffee-sales")
+    public ResponseEntity<?> export(@RequestBody Map<String, Object> request) throws Exception {
+
+        if (!request.containsKey("startDate") ||
+            !request.containsKey("endDate") ||
+            !request.containsKey("storeId") ||
+            !request.containsKey("outputFilePath")) {
+
+            return ResponseEntity.badRequest().body("Missing required fields");
+        }
+
+        JobParameters params = new JobParametersBuilder()
+            .addString("startDate", request.get("startDate").toString())
+            .addString("endDate", request.get("endDate").toString())
+            .addLong("storeId", Long.parseLong(request.get("storeId").toString()))
+            .addString("outputFilePath", request.get("outputFilePath").toString())
+            .addLong("runDate", System.currentTimeMillis())
+            .toJobParameters();
+
+        JobExecution execution = jobOperator.start(job, params);
+
+        return ResponseEntity.ok(Map.of(
+                "executionId", execution.getId(),
+                "status", execution.getStatus()
+        ));
     }
 }
