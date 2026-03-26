@@ -1,6 +1,7 @@
 package com.jjcoffee.coffee_shop_api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,9 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -91,6 +95,33 @@ public class OrderControllerTest {
             .andExpect(jsonPath("$.totalAmount").value(7.00));
 
         verify(orderService).getOrder(1L);
+    }
+
+    //Test batch job trigger
+    @Test
+    void shouldTriggerBatchJobSuccessfully() throws Exception {
+
+        JobExecution mockExecution = mock(JobExecution.class);
+
+        when(mockExecution.getId()).thenReturn(1L);
+        when(mockExecution.getStatus()).thenReturn(BatchStatus.STARTED);
+
+        when(jobOperator.start(any(Job.class), any()))
+                .thenReturn(mockExecution);
+
+        Map<String, Object> request = Map.of(
+                "startDate", "2024-10-01",
+                "endDate", "2024-10-31",
+                "storeId", 1,
+                "outputFilePath", "output.csv"
+        );
+
+        mockMvc.perform(post("/orders/batch/export-coffee-sales")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.executionId").value(1))
+                .andExpect(jsonPath("$.status").value("STARTED"));
     }
 
 }
