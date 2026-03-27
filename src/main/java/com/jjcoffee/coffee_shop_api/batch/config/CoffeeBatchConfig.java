@@ -32,8 +32,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+// @EnableBatchProcessing
 @Configuration
-@EnableBatchProcessing
 @RequiredArgsConstructor
 public class CoffeeBatchConfig {
 
